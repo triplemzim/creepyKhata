@@ -108,6 +108,7 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
 
             Thread.sleep(3000);
 
+
             int responseCode = connection.getResponseCode();
 //                Log.d(TAG, "doInBackground: \nSending 'POST' request to URL : " + url);
             Log.d(TAG, "doInBackground: Post parameters : " + postParams);
