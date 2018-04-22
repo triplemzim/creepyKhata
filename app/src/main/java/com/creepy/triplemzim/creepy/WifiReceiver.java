@@ -39,7 +39,11 @@ public class WifiReceiver extends BroadcastReceiver {
         String ssid = wifiInfo.getSSID();
         Log.d(TAG, "onReceive: ssid: " + ssid);
 //        Log.d(TAG, "onReceive: " +String.valueOf(LoginActivity.autoCheck));
-
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         SharedPreferences pref = context.getSharedPreferences("LoginActivity",Context.MODE_PRIVATE);
         String temp = pref.getString("autoCheck", "false");
         Boolean autoCheck;

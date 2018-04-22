@@ -44,6 +44,7 @@
                 <Switch
                     android:id="@+id/autoSwitch"
                     android:textAlignment="textEnd"
+                    android:layout_gravity="end"
                     android:text="Auto Enable:  "
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

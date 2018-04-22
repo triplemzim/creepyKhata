@@ -67,6 +67,12 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
+    protected void onPreExecute() {
+        int retryNo = pref.getInt("retryNo", 1);
+        showNotification.onStart(context, "Attempting. Count: " + String.valueOf(retryNo));
+    }
+
+    @Override
     protected Boolean doInBackground(Void... params) {
         // TODO: attempt authentication against a network service.
 
@@ -106,7 +112,7 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
             wr.flush();
             wr.close();
 
-            Thread.sleep(3000);
+            Thread.sleep(2000);
 
 
             int responseCode = connection.getResponseCode();
@@ -184,8 +190,13 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
             int retryNo = pref.getInt("retryNo", 1);
 
             if(retryNo < 20){
-                showNotification.onStart(context, "failed! Trying again...Retry count: " + String.valueOf(retryNo));
+//                showNotification.onStart(context, "failed! Trying again...Retry count: " + String.valueOf(retryNo));
                 editor.putInt("retryNo", retryNo + 1).apply();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 new UserLogin(context, false).execute((Void) null);
             }
             else{

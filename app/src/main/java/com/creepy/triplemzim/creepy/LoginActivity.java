@@ -3,8 +3,11 @@ package com.creepy.triplemzim.creepy;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -16,6 +19,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -195,38 +199,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        thread t = new thread(handler);
+        IntentFilter wifiIntentFilter = new IntentFilter();
+        wifiIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        registerReceiver(wifiReceiver, wifiIntentFilter);
 
-        t.start();
-
-
-    }
-
-    public class thread extends Thread{
-
-        Handler handler;
-        public thread(Handler handler){
-            this.handler = handler;
-        }
-
-
-        @Override
-        public void run() {
-            super.run();
-            while(true) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        getWifiStatus();
-                    }
-                });
-                try {
-                    Thread.sleep(2500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     @Override
@@ -239,7 +215,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(LoginActivity.this, "Developer: TripleMZim\n" +
+        Toast.makeText(LoginActivity.this, "Creepy খাতা v3.0\nDeveloper: TripleMZim\n" +
                 "Software Engineer, REVE Systems\n" +
                 "Email: triplemzim@gmail.com", Toast.LENGTH_LONG).show();
         return super.onOptionsItemSelected(item);
@@ -296,6 +272,19 @@ public class LoginActivity extends AppCompatActivity {
         super.onResume();
         updateAll();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(wifiReceiver);
+    }
+
+    private BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            getWifiStatus();
+        }
+    };
 
     private void getWifiStatus() {
         wifiInfo = wifiManager.getConnectionInfo();
