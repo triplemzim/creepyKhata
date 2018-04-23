@@ -21,7 +21,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 /**
- * Created by HP on 11/30/2017.
+ * created by Zim on 11/30/2017.
  */
 
 public class WifiReceiver extends BroadcastReceiver {
@@ -34,7 +34,7 @@ public class WifiReceiver extends BroadcastReceiver {
 
         Log.d(TAG, "onReceive: Broadcast Received ");
 
-        WifiManager wifiManager= (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager= (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         String ssid = wifiInfo.getSSID();
         Log.d(TAG, "onReceive: ssid: " + ssid);
@@ -47,11 +47,13 @@ public class WifiReceiver extends BroadcastReceiver {
         SharedPreferences pref = context.getSharedPreferences("LoginActivity",Context.MODE_PRIVATE);
         String temp = pref.getString("autoCheck", "false");
         Boolean autoCheck;
-        if(temp.equals("false")){
-            autoCheck = false;
-        }
-        else autoCheck = true;
-        if(ssid.contains("ReveSystems") == false || autoCheck == false){
+//        if(temp.equals("false")){
+//            autoCheck = false;
+//        }
+//        else autoCheck = true;
+        autoCheck = !temp.equals("false");
+
+        if(!ssid.contains("ReveSystems") || !autoCheck){
             Log.d(TAG, "onReceive: Cancelling broadcast");
             try {
                 dispatcher.cancelAll();

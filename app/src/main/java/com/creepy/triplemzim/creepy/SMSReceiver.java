@@ -9,7 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * Created by HP on 12/3/2017.
+ * created by Zim on 12/3/2017.
  */
 
 public class SMSReceiver extends BroadcastReceiver {

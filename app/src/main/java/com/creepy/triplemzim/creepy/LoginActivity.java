@@ -167,7 +167,7 @@ public class LoginActivity extends AppCompatActivity {
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(aSwitch.isChecked() == true){
+                if(aSwitch.isChecked()){
                     autoCheck = true;
                     editor.putString("autoCheck","true");
                 }
@@ -200,7 +200,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         IntentFilter wifiIntentFilter = new IntentFilter();
-        wifiIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        wifiIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(wifiReceiver, wifiIntentFilter);
 
     }
@@ -215,7 +215,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(LoginActivity.this, "Creepy খাতা v3.0\nDeveloper: TripleMZim\n" +
+        Toast.makeText(LoginActivity.this, "Creepy খাতা v3.1\nDeveloper: TripleMZim\n" +
                 "Software Engineer, REVE Systems\n" +
                 "Email: triplemzim@gmail.com", Toast.LENGTH_LONG).show();
         return super.onOptionsItemSelected(item);
@@ -241,7 +241,7 @@ public class LoginActivity extends AppCompatActivity {
 
         Log.d(TAG, "updateAll: " + usr);
 
-        if(usr.equals("None") == false){
+        if(!usr.equals("None")){
             textView.setText("Previous user: " + usr);
             submitButton.setVisibility(View.VISIBLE);
         }
@@ -291,9 +291,17 @@ public class LoginActivity extends AppCompatActivity {
         ssid = "";
         ssid = wifiInfo.getSSID();
 
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isWiFi = false;
+        if(activeNetwork != null){
+            isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+        }
 
         Log.d(TAG, "getWifiStatus: " + ssid);
-        if(ssid.contains("ReveSystems") && wifiManager.isWifiEnabled()){
+        if(ssid.contains("ReveSystems") && wifiManager.isWifiEnabled() && isWiFi){
             stat.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
             stat.setText("Good to go! Connected to ReveSystems!");
 //            mEmailSignInButton.setEnabled(true);
@@ -303,7 +311,7 @@ public class LoginActivity extends AppCompatActivity {
             stat.setTextColor(getResources().getColor(R.color.colorRed));
             stat.setText("Warning! Please connect to ReveSystems network!");
 //            mEmailSignInButton.setEnabled(false);
-            submitButton.setEnabled(false);
+//            submitButton.setEnabled(false);
 
         }
     }
@@ -433,7 +441,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     public void showDialogmessage(boolean success){
-        String msg = "";
+        String msg;
         if(success){
             msg = "Login Successful! Yeee :)";
         }
@@ -538,7 +546,7 @@ public class LoginActivity extends AppCompatActivity {
                 if(response.toString().contains(CHECK_STRING2)){
                     return true;
                 }
-                else return false;
+                return false;
 
                 // Simulate network access.
             } catch (InterruptedException e) {

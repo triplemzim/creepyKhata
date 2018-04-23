@@ -2,6 +2,10 @@ package com.creepy.triplemzim.creepy;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
@@ -27,7 +31,7 @@ import static com.creepy.triplemzim.creepy.LoginActivity.referer;
 import static com.creepy.triplemzim.creepy.LoginActivity.url;
 
 /**
- * Created by HP on 11/30/2017.
+ * Created by Zim on 11/30/2017.
  */
 
 public class UserLogin extends AsyncTask<Void, Void, Boolean> {
@@ -43,6 +47,9 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private Context context;
+    private WifiManager wifiManager;
+    private WifiInfo wifiInfo;
+    private String ssid = "";
     int retryTime = 0;
 
 
@@ -57,12 +64,33 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
 //        pref = LoginActivity.pref;
 //        editor = LoginActivity.editor;
         isSuccessful = false;
-        if(firstTime == true){
+        if(firstTime){
             editor.putInt("retryNo", 1).apply();
         }
 
 //            mEmail = "muhim";
 //            mPassword = "";
+
+    }
+
+    private boolean getWifiStatus() {
+        wifiManager= (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiInfo = wifiManager.getConnectionInfo();
+        ssid = "";
+        ssid = wifiInfo.getSSID();
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isWiFi = false;
+        if(activeNetwork != null){
+            isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+        }
+
+        Log.d(TAG, "getWifiStatus: " + ssid);
+        if(ssid.contains("ReveSystems") && wifiManager.isWifiEnabled() && isWiFi ){
+            return true;
+        }
+        return false;
 
     }
 
@@ -106,11 +134,12 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
 
             Log.d(TAG, "doInBackground: \nSending 'POST' request to URL : " + url);
 
-
-            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-            wr.writeBytes(postParams);
-            wr.flush();
-            wr.close();
+            if(getWifiStatus()) {
+                DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+                wr.writeBytes(postParams);
+                wr.flush();
+                wr.close();
+            }
 
             Thread.sleep(2000);
 
@@ -136,7 +165,7 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
             if(response.toString().contains(CHECK_STRING)  || response.toString().contains(CHECK_STRING2)){
                 return true;
             }
-            else return false;
+            return false;
 
             // Simulate network access.
         } catch (InterruptedException e) {
@@ -189,7 +218,7 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
 
             int retryNo = pref.getInt("retryNo", 1);
 
-            if(retryNo < 20){
+            if(retryNo < 20 && getWifiStatus()){
 //                showNotification.onStart(context, "failed! Trying again...Retry count: " + String.valueOf(retryNo));
                 editor.putInt("retryNo", retryNo + 1).apply();
                 try {
