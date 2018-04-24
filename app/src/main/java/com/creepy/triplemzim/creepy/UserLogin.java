@@ -140,6 +140,7 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
                 wr.flush();
                 wr.close();
             }
+            else return false;
 
             Thread.sleep(2000);
 

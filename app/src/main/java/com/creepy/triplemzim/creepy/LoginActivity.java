@@ -201,6 +201,7 @@ public class LoginActivity extends AppCompatActivity {
 
         IntentFilter wifiIntentFilter = new IntentFilter();
         wifiIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        wifiIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         registerReceiver(wifiReceiver, wifiIntentFilter);
 
     }
