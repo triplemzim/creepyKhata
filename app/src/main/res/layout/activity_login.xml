@@ -127,7 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:paddingTop="24dp"
+                android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 style="@style/AppTheme"
                 android:textSize="20dp"
@@ -138,10 +138,18 @@
                 android:id="@+id/tvAutoStart"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="4dp"
                 android:textAlignment="center"
-                android:visibility="gone"
-                android:text="Please allow this app to autostart from Settings"
+                android:visibility="visible"
+                android:text="Please allow this app to autostart from Settings Download Link: bit.ly/hajirakhata"
+                />
+            <Button
+                android:id="@+id/downloadLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="#ffffff"
+                android:text="Download Latest Version"
+                android:textColor="#0641e4"
                 />
 
         </LinearLayout>

@@ -40,11 +40,12 @@
             </intent-filter>
         </receiver>
 
-        <!--<receiver android:name=".SMSReceiver">-->
-            <!--<intent-filter android:priority="100">-->
-                <!--<action android:name="android.provider.Telephony.SMS_RECEIVED"/>-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
+       
+        <receiver android:name=".OnBootReceiver">
+            <intent-filter android:priority="999">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:exported="true"
@@ -60,11 +61,7 @@
             android:exported="true">
         </service>
 
-        <receiver android:name=".OnBootReceiver">
-            <intent-filter android:priority="999">
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+
 
 
 

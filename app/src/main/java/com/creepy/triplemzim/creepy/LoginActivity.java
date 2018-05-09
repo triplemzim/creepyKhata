@@ -13,6 +13,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -98,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.cDate) TextView cDate;
     @BindView(R.id.autoSwitch) Switch aSwitch;
     @BindView(R.id.darkShadow) ImageView darkShadow;
-
+    @BindView(R.id.downloadLink) Button downloadButton;
     public SharedPreferences pref;
     public  SharedPreferences.Editor editor;
 
@@ -355,7 +356,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
+    @OnClick(R.id.downloadLink) void goToLink(){
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://bit.ly/hajirakhata"));
+        startActivity(browserIntent);
+    }
     @OnClick(R.id.submit) void submitUser(){
 
         if (mAuthTask != null) {
