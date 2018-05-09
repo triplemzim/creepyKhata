@@ -9,31 +9,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.support.v7.widget.Toolbar;
+import android.os.Handler;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -43,22 +30,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.firebase.jobdispatcher.Constraint;
-import com.firebase.jobdispatcher.FirebaseJobDispatcher;
-import com.firebase.jobdispatcher.GooglePlayDriver;
-import com.firebase.jobdispatcher.Job;
-import com.firebase.jobdispatcher.Lifetime;
-import com.firebase.jobdispatcher.RetryStrategy;
-import com.firebase.jobdispatcher.Trigger;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -67,21 +45,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
@@ -124,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.msg) TextView message;
     @BindView(R.id.cDate) TextView cDate;
     @BindView(R.id.autoSwitch) Switch aSwitch;
+    @BindView(R.id.darkShadow) ImageView darkShadow;
 
     public SharedPreferences pref;
     public  SharedPreferences.Editor editor;
@@ -135,6 +109,9 @@ public class LoginActivity extends AppCompatActivity {
     private String ssid = "";
     public final Handler handler = new Handler();
     public Context context;
+    public String version = "3.2";
+
+    private WifiReceiver wifiReceiverGlobal = null;
 
 
     @Override
@@ -142,27 +119,25 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+
         // Set up the login form.
 //        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 //        populateAutoComplete();
-
+        try {
+            PackageInfo packageInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        mProgressView.setVisibility(View.GONE);
+        darkShadow.setVisibility(View.GONE);
         wifiManager= (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         pref = this.getSharedPreferences(TAG, Context.MODE_PRIVATE);
         editor = pref.edit();
 
         context = this;
-
-
-
-//        dispatcher.mustSchedule(job);
-
-//        pref.edit().putString("username","muhimmm").apply();
-//        pref.edit().putString("password","none");
-//        pref.edit().commit();
-
         updateAll();
-
 
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -170,16 +145,17 @@ public class LoginActivity extends AppCompatActivity {
                 if(aSwitch.isChecked()){
                     autoCheck = true;
                     editor.putString("autoCheck","true");
+                    findViewById(R.id.tvAutoStart).setVisibility(View.VISIBLE);
                 }
                 else{
                     autoCheck = false;
                     editor.putString("autoCheck","false");
+                    findViewById(R.id.tvAutoStart).setVisibility(View.GONE);
 //                    dispatcher.cancelAll();
                 }
                 editor.commit();
             }
         });
-
 
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -203,6 +179,10 @@ public class LoginActivity extends AppCompatActivity {
         wifiIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         wifiIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         registerReceiver(wifiReceiver, wifiIntentFilter);
+        wifiReceiverGlobal = new WifiReceiver();
+
+        Intent backgroundService = new Intent(getApplicationContext(), KeepAliveService.class);
+        startService(backgroundService);
 
     }
 
@@ -216,9 +196,11 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(LoginActivity.this, "Creepy খাতা v3.1\nDeveloper: TripleMZim\n" +
-                "Software Engineer, REVE Systems\n" +
-                "Email: triplemzim@gmail.com", Toast.LENGTH_LONG).show();
+        Toast.makeText(LoginActivity.this, "Creepy খাতা v"
+                + version
+                +"\nDeveloper: TripleMZim\n"
+                + "Software Engineer, REVE Systems\n"
+                + "Email: triplemzim@gmail.com", Toast.LENGTH_LONG).show();
         return super.onOptionsItemSelected(item);
     }
 
@@ -231,10 +213,12 @@ public class LoginActivity extends AppCompatActivity {
         if(pref.getString("autoCheck","false").equals("true")){
             autoCheck = true;
             aSwitch.setChecked(true);
+            findViewById(R.id.tvAutoStart).setVisibility(View.VISIBLE);
         }
         else{
             autoCheck = false;
             aSwitch.setChecked(false);
+            findViewById(R.id.tvAutoStart).setVisibility(View.GONE);
         }
 
         cDate.setText("Current Date: " + DateFormat.getDateInstance().format(new Date()).toString());
@@ -392,8 +376,20 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Shows the progress UI and hides the login form.
      */
+
+    private void showProgress(final boolean show){
+        if(show) {
+            mProgressView.setVisibility(View.VISIBLE);
+            darkShadow.setVisibility(View.VISIBLE);
+        }
+        else{
+            mProgressView.setVisibility(View.GONE);
+            darkShadow.setVisibility(View.GONE);
+        }
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
+    private void OldshowProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
@@ -443,6 +439,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void showDialogmessage(boolean success){
         String msg;
+        if(context == null) return;
         if(success){
             msg = "Login Successful! Yeee :)";
         }
@@ -460,7 +457,12 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
 
-        dialogBuilder.show();
+        try {
+            dialogBuilder.show();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**

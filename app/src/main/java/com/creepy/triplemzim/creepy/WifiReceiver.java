@@ -28,7 +28,6 @@ public class WifiReceiver extends BroadcastReceiver {
     private static final String TAG = "WifiReceiver";
     public FirebaseJobDispatcher dispatcher;
     public Job job;
-
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -40,7 +39,7 @@ public class WifiReceiver extends BroadcastReceiver {
         Log.d(TAG, "onReceive: ssid: " + ssid);
 //        Log.d(TAG, "onReceive: " +String.valueOf(LoginActivity.autoCheck));
         try {
-            Thread.sleep(1500);
+            Thread.sleep(700);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

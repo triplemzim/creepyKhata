@@ -13,4 +13,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="channel_name">Creepy Khata</string>
+    <string name="channel_description">Performing login to HajiraKhata</string>
+    <string name="hajirakhata">HajiraKhata</string>
 </resources>

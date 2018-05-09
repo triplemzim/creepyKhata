@@ -227,6 +227,12 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
+                if(pref.getString("lastDate","a").equals(
+                        DateFormat.getDateInstance().format(new Date()).toString())){
+                    return;
+                }
+
                 new UserLogin(context, false).execute((Void) null);
             }
             else{
