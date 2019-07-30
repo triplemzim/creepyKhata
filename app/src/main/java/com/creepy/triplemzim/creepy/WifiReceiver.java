@@ -63,7 +63,7 @@ public class WifiReceiver extends BroadcastReceiver {
         else{
             if(pref.getString("lastDate","a").equals(
                     DateFormat.getDateInstance().format(new Date()).toString())){
-                return;    
+                return;
             }
 
             dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
