@@ -87,7 +87,7 @@ public class UserLogin extends AsyncTask<Void, Void, Boolean> {
         }
 
         Log.d(TAG, "getWifiStatus: " + ssid);
-        if(ssid.contains("ReveSystems") && wifiManager.isWifiEnabled() && isWiFi ){
+        if(ssid.toLowerCase().contains("reve") && wifiManager.isWifiEnabled() && isWiFi ){
             return true;
         }
         return false;
